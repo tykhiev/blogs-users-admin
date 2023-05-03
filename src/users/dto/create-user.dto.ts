@@ -2,17 +2,10 @@ import { User } from '@prisma/client';
 import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateUserDto
-  implements
-    Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'name' | 'adminId' | 'email'>
+  implements Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'role'>
 {
   @IsString()
   username: string;
-
-  @IsOptional()
-  name?: string;
-
-  @IsEmail()
-  email?: string;
 
   @IsString()
   @MinLength(3)

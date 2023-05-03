@@ -7,16 +7,6 @@ import { PrismaService } from 'src/prisma.service';
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
-  create(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({
-      data: createUserDto,
-      select: {
-        id: true,
-        username: true,
-        createdAt: true,
-      },
-    });
-  }
 
   findAll() {
     return this.prisma.user.findMany();
