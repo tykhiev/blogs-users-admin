@@ -1,33 +1,43 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.user.findMany();
-  }
-
-  findOne(where: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({
-      where,
+  async getMyUser(id: string, req: Request) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
     });
+    
+        if (!user){
+          throw new NotFoundException('User not found');
+        }
+
+    const decodedUser = req.user as { id: string, username: string };
+
+    if (decodedUser.id !== user.id) {
+      throw new ForbiddenException('User not found');
+    }
+
+    delete user.password;
+
+    return { user };
   }
 
-  update(where: Prisma.UserWhereUniqueInput, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      where,
-      data: updateUserDto,
-    });
-  }
-
-  remove(where: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.delete({
-      where,
+  async getUsers() {
+    return await this.prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+      },
     });
   }
 }
