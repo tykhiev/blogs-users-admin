@@ -11,7 +11,7 @@ datasource db {
 }
 
 enum Role {
-  USER  
+  USER
   ADMIN
 }
 
@@ -34,8 +34,8 @@ model Blog {
   content      String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  author       User     @relation("writtenBlogs", references: [id], fields: [authorId])
-  authorId     String
+  author       User?    @relation("writtenBlogs", references: [id], fields: [authorId])
+  authorId     String // update this field to match the type of the `id` field in the `User` model
   favoriteBy   User?    @relation("favoriteBlogs", references: [id], fields: [favoriteById])
   favoriteById String?
 }
