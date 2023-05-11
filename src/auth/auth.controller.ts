@@ -12,8 +12,8 @@ export class AuthController {
   }
 
   @Post('/signin')
-  signIn(@Body() dto: AuthDto, @Req() req, @Res() res) {
-    return this.authService.signIn(dto, req , res);
+  signIn(@Body() dto: AuthDto) {
+    return this.authService.signIn(dto);
   }
 
   @Get('signout')

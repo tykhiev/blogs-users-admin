@@ -46,23 +46,4 @@ export class UsersService {
       },
     });
   }
-  async createBlogPost(userId: string, title: string, content: string) {
-    const blog = await this.prisma.blog.create({
-      data: {
-        title,
-        content,
-        authorId: userId,
-      },
-    });
-    return blog;
-  }
-  async getUserBlogs(userId: string) {
-    return await this.prisma.blog.findMany({
-      where: { authorId: userId },
-    });
-  }
-
-  async getAllBlogs() {
-    return await this.prisma.blog.findMany();
-  }
 }

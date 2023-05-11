@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { jwtSecret } from '../utils/constants';
 import { Request, Response } from 'express';
+import { exclude } from 'src/utils/exclude';
 
 @Injectable()
 export class AuthService {
@@ -20,22 +21,31 @@ export class AuthService {
     const foundUser = await this.prisma.user.findUnique({
       where: { username },
     });
+    console.log(username, password);
     if (foundUser) {
       throw new BadRequestException('Username already exists');
     }
 
     const hashedPassword = await this.hashPassword(password);
 
-    await this.prisma.user.create({
+    const newUser = await this.prisma.user.create({
       data: {
         username,
         password: hashedPassword,
       },
     });
-    return { message: 'user created' };
+
+    const token = await this.signToken({
+      username: newUser.username,
+      id: newUser.id,
+    });
+
+    exclude(newUser, ['password', 'role']);
+
+    return { token, user: newUser };
   }
 
-  async signIn(dto: AuthDto, req: Request, res: Response) {
+  async signIn(dto: AuthDto) {
     const { username, password } = dto;
     const foundUser = await this.prisma.user.findUnique({
       where: { username },
@@ -61,13 +71,14 @@ export class AuthService {
       throw new ForbiddenException('Token not found');
     }
 
-    res.cookie('token', token);
+    exclude(foundUser, ['password', 'role']);
 
-    return res.send({ message: 'signed in successfully' });
+    return { token, user: foundUser };
   }
 
   async signOut(req: Request, res: Response) {
-    res.clearCookie('token');
+    // Remove the token from the client
+    res.clearCookie('jwt');
     return res.send({ message: 'signed out successfully' });
   }
 
