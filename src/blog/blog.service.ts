@@ -19,24 +19,55 @@ export class BlogService {
     return blog;
   }
 
-  async getAllBlogs() {
-    return await this.prisma.blog.findMany({
-      include: {
-        author: {
-          select: {
-            username: true,
+  async getAllBlogs(page: number, pageSize: number) {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+    const [data, totalCount] = await this.prisma.$transaction([
+      this.prisma.blog.findMany({
+        include: {
+          author: {
+            select: {
+              username: true,
+            },
           },
         },
-      },
-    });
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.blog.count(),
+    ]);
+    return { data, totalCount };
   }
 
-  async getUserBlogs(userId: string) {
-    return await this.prisma.blog.findMany({
-      where: { authorId: userId },
-    });
-  }
+  async getUserBlogs(id: string, page: number, pageSize: number) {
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
+    const [data, totalCount] = await this.prisma.$transaction([
+      this.prisma.blog.findMany({
+        where: { authorId: id },
+        include: {
+          author: {
+            select: {
+              username: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take,
+      }),
+      this.prisma.blog.count({
+        where: { authorId: id },
+      }),
+    ]);
 
+    return { data, totalCount };
+  }
   update(id: number, updateBlogDto: UpdateBlogDto) {
     return `This action updates a #${id} blog`;
   }

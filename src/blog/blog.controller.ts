@@ -3,11 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   UseGuards,
   Request,
+  Query,
+  ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -22,20 +23,26 @@ export class BlogController {
   @Post('create-blog')
   async createBlogPost(@Request() req, @Body() dto: CreateBlogDto) {
     const userId = req.user.id;
-    const { title, content } = dto;
     const blog = await this.blogService.createBlogPost(dto, userId);
     return { message: 'Blog post created', data: blog };
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get(':userId/blogs')
-  getUserBlogs(@Param('userId') userId: string) {
-    return this.blogService.getUserBlogs(userId);
+  @Get(':id')
+  getUserBlogs(
+    @Param('id') @Query('page', ParseIntPipe) page = 1,
+    @Query('pageSize', ParseIntPipe) pageSize = 5,
+    @Req() req: any,
+  ) {
+    return this.blogService.getUserBlogs(req.user.id, page, pageSize);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  getMyUser(@Param() params: { id: string }) {
-    return this.blogService.getAllBlogs();
+  getMyUser(
+    @Query('page', ParseIntPipe) page = 1,
+    @Query('pageSize', ParseIntPipe) pageSize = 5,
+  ) {
+    return this.blogService.getAllBlogs(page, pageSize);
   }
 }

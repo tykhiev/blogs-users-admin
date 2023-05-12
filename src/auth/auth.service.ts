@@ -42,7 +42,7 @@ export class AuthService {
 
     exclude(newUser, ['password', 'role']);
 
-    return { token, user: newUser };
+    return { token, user: newUser, id: newUser.id };
   }
 
   async signIn(dto: AuthDto) {
@@ -73,7 +73,7 @@ export class AuthService {
 
     exclude(foundUser, ['password', 'role']);
 
-    return { token, user: foundUser };
+    return { token, user: foundUser, id: foundUser.username };
   }
 
   async signOut(req: Request, res: Response) {
