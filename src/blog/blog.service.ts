@@ -68,11 +68,34 @@ export class BlogService {
 
     return { data, totalCount };
   }
-  update(id: number, updateBlogDto: UpdateBlogDto) {
-    return `This action updates a #${id} blog`;
+
+  async getBlogById(id: string) {
+    const blog = await this.prisma.blog.findUnique({
+      where: { id },
+      include: {
+        author: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+    if (!blog) {
+      throw new Error(`Blog post with id ${id} not found`);
+    }
+    return blog;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} blog`;
+  updateBlogById(id: string, updateBlogDto: UpdateBlogDto) {
+    return this.prisma.blog.update({
+      where: { id },
+      data: updateBlogDto,
+    });
+  }
+
+  deleteBlogById(id: string) {
+    return this.prisma.blog.delete({
+      where: { id },
+    });
   }
 }

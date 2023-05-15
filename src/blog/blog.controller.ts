@@ -9,6 +9,8 @@ import {
   Query,
   ParseIntPipe,
   Req,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -38,11 +40,44 @@ export class BlogController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get('')
   getMyUser(
     @Query('page', ParseIntPipe) page = 1,
     @Query('pageSize', ParseIntPipe) pageSize = 5,
   ) {
     return this.blogService.getAllBlogs(page, pageSize);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/blog/:id')
+  async getBlogById(@Param('id') id: string) {
+    try {
+      const blog = await this.blogService.getBlogById(id);
+      return { blog };
+    } catch (error) {
+      return { message: error.message };
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/blog/:id')
+  async updateBlogById(@Param('id') id: string, @Body() dto: UpdateBlogDto) {
+    try {
+      const blog = await this.blogService.updateBlogById(id, dto);
+      return { blog };
+    } catch (error) {
+      return { message: error.message };
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/blog/:id')
+  async deleteBlogById(@Param('id') id: string) {
+    try {
+      const blog = await this.blogService.deleteBlogById(id);
+      return { blog };
+    } catch (error) {
+      return { message: error.message };
+    }
   }
 }
