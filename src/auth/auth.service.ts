@@ -95,4 +95,13 @@ export class AuthService {
     const payload = args;
     return this.jwt.sign(payload, { secret: jwtSecret });
   }
+
+  googleLogin(req) {
+    if (!req.user) {
+      return 'No user from google';
+    } else {
+      message: 'User from google';
+      user: req.user;
+    }
+  }
 }

@@ -86,16 +86,18 @@ export class BlogService {
     return blog;
   }
 
-  updateBlogById(id: string, updateBlogDto: UpdateBlogDto) {
-    return this.prisma.blog.update({
+  async updateBlogById(id: string, updateBlogDto: UpdateBlogDto) {
+    const update = await this.prisma.blog.update({
       where: { id },
       data: updateBlogDto,
     });
+    return update;
   }
 
-  deleteBlogById(id: string) {
-    return this.prisma.blog.delete({
+  async deleteBlogById(id: string) {
+    const data = await this.prisma.blog.delete({
       where: { id },
     });
+    return data;
   }
 }
